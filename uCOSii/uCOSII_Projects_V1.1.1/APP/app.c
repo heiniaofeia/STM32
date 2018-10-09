@@ -218,7 +218,7 @@ void Task_LCD1602(void *p_arg)
 			
 			LCD_Write_String(5, 0, (uint8_t *)"     ");
 			LCD_Write_String(5, 1, (uint8_t *)"     ");
-			LCD_Write_String(12, 0, (uint8_t *)"     ");
+			LCD_Write_String(11, 0, (uint8_t *)"      ");
 			
 			LCD_Write_String(5, 0, &dis_stack_free[0]);
 			LCD_Write_String(5, 1, &dis_stack_used[0]);
