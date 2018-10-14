@@ -34,6 +34,5 @@ void ADC1_Init(void);
 uint16_t Get_ADC1(u8 ch);
 
 
-
 #endif 
 

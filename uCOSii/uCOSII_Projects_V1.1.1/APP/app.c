@@ -223,7 +223,8 @@ void Task_LCD1602(void *p_arg)
 			LCD_Write_String(5, 0, &dis_stack_free[0]);
 			LCD_Write_String(5, 1, &dis_stack_used[0]);
 			
-			LCD_Write_String(12, 0, &ADC1Dat.DispBuf[0]);
+			LCD_Write_String(12, 0, &ADC1Dat.DispBuf1[0]);
+			LCD_Write_String(12, 1, &ADC1Dat.DispBuf2[0]);
 		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);
@@ -249,9 +250,8 @@ void Task_ADC1(void *p_arg)
 	
 	while(1)
 	{
-		conver_val_temp = (Get_ADC1(ADC_Channel_0) * 3);
-		sprintf(&ADC1Dat.DispBuf[0], "%d", conver_val_temp);
-		
+		conver_val_temp = Get_ADC1(ADC_Channel_0) * 3000 / 4096;
+		sprintf(&ADC1Dat.DispBuf1[0], "%d", conver_val_temp);
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);
 	}

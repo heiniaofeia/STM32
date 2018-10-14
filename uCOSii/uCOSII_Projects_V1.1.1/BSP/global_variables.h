@@ -41,7 +41,8 @@
  */
 struct tagADC1
 {
-	uint8_t                  DispBuf[16];
+	uint8_t                  DispBuf1[8];
+	uint8_t                  DispBuf2[8];
 };
 
 
