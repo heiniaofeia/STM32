@@ -25,6 +25,7 @@ OS_STK  task_led2_stk[TASK_LED2_STK_SIZE];
 OS_STK  task_matrikey_stk[TASK_MATRIXKEY_STK_SIZE];
 OS_STK  task_lcd1602_stk[TASK_LCD1602_STK_SIZE];
 OS_STK  task_ADC1_stk[TASK_ADC1_STK_SIZE];
+OS_STK  task_PWM_stk[TASK_PWM_STK_SIZE];
 
 
 /*---------------------------------------------------------------------------
@@ -42,6 +43,7 @@ OS_STK  task_ADC1_stk[TASK_ADC1_STK_SIZE];
 void Task_Start(void *p_arg)
 {
 	(void)p_arg;                                                                // 'p_arg' 并没有用到，防止编译器提示警告
+	
 	
 	//创建任务2.
 //	OSTaskCreate(Task_LED1, (void *)0, &task_led1_stk[TASK_LED1_STK_SIZE - 1], TASK_LED1_PRIO);
@@ -107,12 +109,27 @@ void Task_Start(void *p_arg)
 					(INT16U)(OS_TASK_OPT_STK_CLR | OS_TASK_OPT_STK_CHK));					
 	
 	
+					
+	//创建PWM任务.
+//	OSTaskCreate(Task_PWM, (void *)0, &task_PWM_stk[TASK_PWM_STK_SIZE - 1], TASK_PWM_PRIO);	
+	OSTaskCreateExt((void (*)(void *))Task_PWM,
+					(void *)0,
+					(OS_STK *)&task_PWM_stk[TASK_PWM_STK_SIZE - 1],
+					(INT8U)TASK_PWM_PRIO,
+					(INT16U)TASK_PWM_PRIO,
+					(OS_STK *)&task_PWM_stk[0],
+					(INT32U) TASK_PWM_STK_SIZE,
+					(void*)0,
+					(INT16U)(OS_TASK_OPT_STK_CLR | OS_TASK_OPT_STK_CHK));						
+			
+					
 	//删除Task_Start任务。删除任务后无法查看该任务的堆栈情况。
 //	OSTaskDel(TASK_STARTUP_PRIO);
+	
 					
 	while(1)
 	{
-		OSTimeDlyHMSM(0, 0, 0, 500);
+		OSTimeDlyHMSM(0, 0, 0, 5000);
 	}
 }
 
@@ -127,6 +144,7 @@ void Task_Start(void *p_arg)
 void Task_LED1(void *p_arg)
 {
 	(void)p_arg;                	
+	
 	
 	while(1)
 	{
@@ -148,6 +166,7 @@ void Task_LED1(void *p_arg)
 void Task_LED2(void *p_arg)
 {
     (void)p_arg;      
+	
 	
 	while(1)
 	{
@@ -172,12 +191,61 @@ void Task_Matrixkey(void *p_arg)
 	
     (void)p_arg;      
 	
+	
 	while(1)
 	{
 		key_val = GetKeyValue();
 		if( 0 != key_val )
 		{
-			LCD_Write_Char(12, 0, key_val); 
+			Matrixkey.Value = key_val;
+			Microwaves.UpdataFreqFlg = TRUE;
+			
+			switch(Matrixkey.Value)
+			{
+				case '/':
+					Microwaves.CtlSwitch = OFF;
+					Microwaves.Freq = 0;
+				break;
+				
+				case '*':
+					Microwaves.CtlSwitch = ON;
+				break;
+				
+				case '=':
+					if((Microwaves.CtlSwitch) 
+						&& (Microwaves.Freq > 0))
+					{
+						Microwaves.Freq--;
+					}
+				break;
+				
+				case '9':
+					if((Microwaves.CtlSwitch) 
+						&& (Microwaves.Freq <  Microwaves.FreqMax))
+					{
+						Microwaves.Freq++;
+					}
+				break;		
+				
+				case '8':
+					if((Microwaves.CtlSwitch) 
+						&& ((Microwaves.Freq - 10) > 0))
+					{
+						Microwaves.Freq = Microwaves.Freq - 10;
+					}					
+				break;
+				
+				case '0':
+					if((Microwaves.CtlSwitch) 
+						&& ((Microwaves.Freq + 10) <  Microwaves.FreqMax))
+					{
+						Microwaves.Freq = Microwaves.Freq + 10;
+					}					
+				break;					
+
+				default:
+				break;
+			}
 		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 100);
@@ -205,6 +273,7 @@ void Task_LCD1602(void *p_arg)
 	LCD_Write_String(0, 0, "free:");
 	LCD_Write_String(0, 1, "used:");
 	
+	
 	while(1)
 	{
 		//删除Task_Start任务。删除Task_Start任务后无法查看该任务的堆栈情况。
@@ -225,12 +294,14 @@ void Task_LCD1602(void *p_arg)
 			
 			LCD_Write_String(12, 0, &ADC1Dat.DispBuf1[0]);
 			LCD_Write_String(12, 1, &ADC1Dat.DispBuf2[0]);
+			
+			
+			LCD_Write_Char(12, 1, Matrixkey.Value);
 		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);
 	}
 }
-
 
 
 /*
@@ -251,7 +322,65 @@ void Task_ADC1(void *p_arg)
 	while(1)
 	{
 		conver_val_temp = Get_ADC1(ADC_Channel_0) * 3000 / 4096;
-		sprintf(&ADC1Dat.DispBuf1[0], "%d", conver_val_temp);
+		
+		//Debug: 查看ADC采样值。
+//		sprintf(&ADC1Dat.DispBuf1[0], "%d", conver_val_temp);
+		
+		if( conver_val_temp > 2000)                                             //变频驱动板反馈电压不得超过4VDC. 为安全起见，设定为2VDC。
+		{
+			Microwaves.CtlSwitch = OFF;
+			Microwaves.Freq = 0;			
+		}
+		
+		OSTimeDlyHMSM(0, 0, 0, 1000);
+	}
+}
+
+
+/*
+ * @function: Task_PWM
+ * @details : PWM任务。
+ * @input   : NULL
+ * @output  : NULL
+ * @return  : NULL
+ */
+void Task_PWM(void *p_arg)
+{
+	(void)p_arg;
+	
+	
+	while(1)
+	{
+		if(ON == Microwaves.CtlSwitch)
+		{
+			TIM2->CCR1 = Matrixkey.Value;	
+		}
+		else
+		{
+			TIM_CtrlPWMOutputs(TIM2, DISABLE);
+			
+			if((TRUE == Microwaves.UpdataFreqFlg)
+				&& (0 != Microwaves.Freq ) && ( Microwaves.Freq < PWM_FREQ_MAX ))
+			{
+				Microwaves.UpdataFreqFlg = FALSE;
+				
+				if( Microwaves.Freq < 100 )
+				{
+					TIM2->PSC = 143;
+					TIM2->CCR1 = 500000 / Microwaves.Freq;
+				}
+				else
+				{
+					TIM2->PSC = 71;
+					TIM2->CCR1 = 1000000 / Microwaves.Freq;
+				}
+				
+			}
+			else
+			{
+				TIM2->CCR1 = 0;
+			}
+		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);
 	}

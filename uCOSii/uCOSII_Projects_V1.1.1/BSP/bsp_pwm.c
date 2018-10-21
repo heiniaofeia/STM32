@@ -7,7 +7,7 @@
  * @details: pwm source file
  */
 #include "bsp_pwm.h" 
-
+#include "global_variables.h"
 
 
 /*---------------------------------------------------------------------------
@@ -54,15 +54,13 @@ static void TIM2_Configuration(void)
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 	
 	uint16_t TIM2Period;
-	uint16_t TIM2Channel1Pulse; 
 	
 	
 	/* 设置TIM3CLK 为 72MHZ */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
-	TIM2Period = 999;
+	TIM2Period = PWM_FREQ_MAX;
 	/* Compute CCR1 value to generate a duty cycle at 50% for channel 1 and 1N */
-	TIM2Channel1Pulse = (uint16_t) ((uint32_t)(TIM2Period + 1) * 60 / 100);
 
 	
 	TIM_DeInit(TIM2);
@@ -75,7 +73,7 @@ static void TIM2_Configuration(void)
 	/* PWM15 Mode configuration: Channel1 ---------------------------------------------------------------*/
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
-	TIM_OCInitStructure.TIM_Pulse = TIM2Channel1Pulse;                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
+	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
 	TIM_OC1Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
 	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);	
@@ -103,6 +101,13 @@ void TIM2_PWM_Init(void)
 {
 	TIM2_GPIO_Config();
 	TIM2_Configuration();	
+	
+	Microwaves.CtlSwitch = OFF;
+	Microwaves.Freq = 0;
+	Microwaves.FreqMin = PWM_FREQ_MIN;
+	Microwaves.FreqMax = PWM_FREQ_MAX;
+	
+	Microwaves.FeedbackVoltage = 0;
 }
 
 /*********************************************END OF FILE**********************/

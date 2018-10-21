@@ -36,9 +36,8 @@
 /*---------------------------------------------------------------------------
                                 Function declaration
 ----------------------------------------------------------------------------*/
-void MatrixkeyConfig(void);
+void MatrixkeyInit(void);
 uint8_t GetKeyValue(void);
-
 
 
 #endif

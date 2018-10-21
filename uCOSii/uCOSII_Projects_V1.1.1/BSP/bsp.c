@@ -165,10 +165,12 @@ void BSP_Init(void)
 	SystemInit();                                                              /* 配置系统时钟为72M. */	
 	SysTick_init();                                                            /* 初始化并使能SysTick定时器. */
 	LED_Init();                                                                /* LED 初始化. */
-	MatrixkeyConfig();
+	MatrixkeyInit();
 	Lcd1602_Init();
 	TIM2_PWM_Init();
-	ADC1_Init();
+	ADC1Init();
+	
+//	UserParaInit();
 }
 
 

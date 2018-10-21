@@ -45,7 +45,7 @@
 /*
  * @details: lcd1602任务优先级和任务堆栈大小。
  */
-#define  TASK_LCD1602_PRIO                       28                             /* 设置LED1任务优先级.                                 */
+#define  TASK_LCD1602_PRIO                       28                             /* 设置LCD1602任务优先级.                                 */
 #define  TASK_LCD1602_STK_SIZE                   64                             /* 设置任务堆栈大小.                                   */
 
 /*
@@ -53,6 +53,13 @@
  */
 #define  TASK_ADC1_PRIO                          27                             /* 设置ADC1任务优先级.                                 */
 #define  TASK_ADC1_STK_SIZE                      64                             /* 设置任务堆栈大小.                                   */
+
+
+/*
+ * @details: PWM任务优先级和任务堆栈大小。
+ */
+#define  TASK_PWM_PRIO                           26                             /* 设置PWM任务优先级.                                 */
+#define  TASK_PWM_STK_SIZE                       64                             /* 设置任务堆栈大小.                                   */
 
 
 /*---------------------------------------------------------------------------
@@ -69,6 +76,7 @@ extern  OS_STK  task_led2_stk[TASK_LED2_STK_SIZE];
 extern  OS_STK  task_matrikey_stk[TASK_MATRIXKEY_STK_SIZE];
 extern  OS_STK  task_lcd1602_stk[TASK_LCD1602_STK_SIZE];
 extern  OS_STK  task_ADC1_stk[TASK_ADC1_STK_SIZE];
+extern  OS_STK  task_PWM_stk[TASK_PWM_STK_SIZE];
 
 
 /*---------------------------------------------------------------------------
@@ -83,6 +91,7 @@ void Task_LED2(void *p_arg);
 void Task_Matrixkey(void *p_arg);
 void Task_LCD1602(void *p_arg);
 void Task_ADC1(void *p_arg);
+void Task_PWM(void *p_arg);
 
 
 #endif

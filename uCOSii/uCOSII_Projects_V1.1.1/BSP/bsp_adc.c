@@ -18,13 +18,13 @@
                                 Function definition
 ----------------------------------------------------------------------------*/
 /*
- * @function: LED_GPIO_Config
- * @details : 初始化ADC, 默认将开启通道0~3.
+ * @function: ADC1Config
+ * @details : 配置ADC1.
  * @input   : NULL
  * @output  : NULL
  * @return  : NULL
  */   																   
-void ADC1_Init(void)
+void ADC1Config(void)
 { 	
 	ADC_InitTypeDef   ADC_InitStructure; 
 	GPIO_InitTypeDef  GPIO_InitStructure;
@@ -86,3 +86,15 @@ uint16_t Get_ADC1(u8 ch)
 	return ADC_GetConversionValue(ADC1);                                        //返回最近一次ADC1规则组的转换结果
 }
 
+
+/*
+ * @function: ADC1Init
+ * @details : 初始化ADC1.
+ * @input   : NULL
+ * @output  : NULL
+ * @return  : NULL
+ */ 
+void ADC1Init(void)
+{
+	ADC1Config();
+}
