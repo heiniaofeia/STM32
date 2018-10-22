@@ -64,6 +64,7 @@ struct tagADC1
 struct tagMatrixkey
 {
 	uint8_t                  Value;
+	uint8_t                  KeySingleDeal;	
 };
 
 

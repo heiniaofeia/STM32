@@ -187,10 +187,10 @@ void Task_LED2(void *p_arg)
  */
 void Task_Matrixkey(void *p_arg)
 {
-	uint8_t key_val;
+	uint8_t    key_val;
+	
 	
     (void)p_arg;      
-	
 	
 	while(1)
 	{
@@ -198,54 +198,89 @@ void Task_Matrixkey(void *p_arg)
 		if( 0 != key_val )
 		{
 			Matrixkey.Value = key_val;
-			Microwaves.UpdataFreqFlg = TRUE;
 			
 			switch(Matrixkey.Value)
 			{
 				case '/':
-					Microwaves.CtlSwitch = OFF;
-					Microwaves.Freq = 0;
+					if( FALSE == Matrixkey.KeySingleDeal )
+					{
+						Matrixkey.KeySingleDeal = TRUE;
+						Microwaves.CtlSwitch = OFF;
+						Microwaves.Freq = 0;
+					}
 				break;
 				
 				case '*':
-					Microwaves.CtlSwitch = ON;
+					if( FALSE == Matrixkey.KeySingleDeal )
+					{
+						Matrixkey.KeySingleDeal = TRUE;
+						Microwaves.CtlSwitch = ON;
+					}					
 				break;
 				
 				case '=':
-					if((Microwaves.CtlSwitch) 
-						&& (Microwaves.Freq > 0))
+					if( FALSE == Matrixkey.KeySingleDeal )
 					{
-						Microwaves.Freq--;
-					}
+						Matrixkey.KeySingleDeal = TRUE;
+						
+						if((Microwaves.CtlSwitch) 
+							&& (Microwaves.Freq > 0))
+						{
+							Microwaves.Freq--;
+							Microwaves.UpdataFreqFlg = TRUE;
+						}
+					}						
 				break;
 				
 				case '9':
-					if((Microwaves.CtlSwitch) 
-						&& (Microwaves.Freq <  Microwaves.FreqMax))
+					if( FALSE == Matrixkey.KeySingleDeal )
 					{
-						Microwaves.Freq++;
-					}
+						Matrixkey.KeySingleDeal = TRUE;
+						
+						if((Microwaves.CtlSwitch) 
+							&& (Microwaves.Freq <  Microwaves.FreqMax))
+						{
+							Microwaves.Freq++;
+							Microwaves.UpdataFreqFlg = TRUE;
+						}
+					}						
 				break;		
 				
 				case '8':
-					if((Microwaves.CtlSwitch) 
-						&& ((Microwaves.Freq - 10) > 0))
+					if( FALSE == Matrixkey.KeySingleDeal )
 					{
-						Microwaves.Freq = Microwaves.Freq - 10;
+						Matrixkey.KeySingleDeal = TRUE;
+						
+						if((Microwaves.CtlSwitch) 
+							&& ((Microwaves.Freq + 10) <  Microwaves.FreqMax))
+						{
+							Microwaves.Freq = Microwaves.Freq + 10;
+							Microwaves.UpdataFreqFlg = TRUE;
+						}
 					}					
 				break;
 				
 				case '0':
-					if((Microwaves.CtlSwitch) 
-						&& ((Microwaves.Freq + 10) <  Microwaves.FreqMax))
+					if( FALSE == Matrixkey.KeySingleDeal )
 					{
-						Microwaves.Freq = Microwaves.Freq + 10;
+						Matrixkey.KeySingleDeal = TRUE;
+						
+						if((Microwaves.CtlSwitch) 
+							&& ((Microwaves.Freq - 10) > 0))
+						{
+							Microwaves.Freq = Microwaves.Freq - 10;
+							Microwaves.UpdataFreqFlg = TRUE;
+						}
 					}					
 				break;					
 
 				default:
 				break;
 			}
+		}
+		else
+		{
+			Matrixkey.KeySingleDeal = FALSE;
 		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 100);
@@ -353,33 +388,34 @@ void Task_PWM(void *p_arg)
 	{
 		if(ON == Microwaves.CtlSwitch)
 		{
-			TIM2->CCR1 = Matrixkey.Value;	
+			if(TRUE == Microwaves.UpdataFreqFlg)
+			{
+//				if( Microwaves.Freq < PWM_FREQ_MAX )
+				{
+					Microwaves.UpdataFreqFlg = FALSE;
+					
+					if( 0 == Microwaves.Freq )
+					{
+						TIM2->CCR1 = 0;
+					}
+					else if( Microwaves.Freq < 100 )
+					{
+						TIM2->PSC = 2879;
+						TIM2->ARR = 50000 / Microwaves.Freq;
+						TIM2->CCR2 = 25000 / Microwaves.Freq;
+					}
+					else
+					{
+						TIM2->PSC = 1439;
+						TIM2->ARR = 100000 / Microwaves.Freq;
+						TIM2->CCR2 = 50000 / Microwaves.Freq;
+					}
+				}
+			}				
 		}
 		else
 		{
-			TIM_CtrlPWMOutputs(TIM2, DISABLE);
-			
-			if((TRUE == Microwaves.UpdataFreqFlg)
-				&& (0 != Microwaves.Freq ) && ( Microwaves.Freq < PWM_FREQ_MAX ))
-			{
-				Microwaves.UpdataFreqFlg = FALSE;
-				
-				if( Microwaves.Freq < 100 )
-				{
-					TIM2->PSC = 143;
-					TIM2->CCR1 = 500000 / Microwaves.Freq;
-				}
-				else
-				{
-					TIM2->PSC = 71;
-					TIM2->CCR1 = 1000000 / Microwaves.Freq;
-				}
-				
-			}
-			else
-			{
-				TIM2->CCR1 = 0;
-			}
+			TIM2->CCR2 = 0;
 		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);

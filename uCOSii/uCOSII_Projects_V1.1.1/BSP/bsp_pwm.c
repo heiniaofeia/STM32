@@ -34,7 +34,7 @@ static void TIM2_GPIO_Config(void)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); 
 
 	/*GPIOA Configuration: TIM2 channel 1 and 2 as alternate function push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -64,29 +64,47 @@ static void TIM2_Configuration(void)
 
 	
 	TIM_DeInit(TIM2);
-	TIM_TimeBaseStructure.TIM_Prescaler = 71;                                   /* 时钟预分频数, 72分频. */
+	TIM_TimeBaseStructure.TIM_Prescaler = 1439;                                 /* 时钟预分频数, 1440分频. */
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;                 /* 向上计数模式, 即左对齐. */
 	TIM_TimeBaseStructure.TIM_Period = TIM2Period;                              /* PWM周期. */
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;                     /* 采样分频, 不分频。 */
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 	
-	/* PWM15 Mode configuration: Channel1 ---------------------------------------------------------------*/
+	/* PWM1 Mode configuration: Channel1 ---------------------------------------------------------------*/
+//	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
+//	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
+//	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
+//	TIM_OC1Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
+//	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);	
+	/* ------------------------------------------------------------------------------------------------*/
+	
+	/* PWM1 Mode configuration: Channel2 ---------------------------------------------------------------*/
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
 	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
-	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);	
-	/* ------------------------------------------------------------------------------------------------*/
-	
-	
-//	TIM_ARRPreloadConfig(TIM2,DISABLE);											/* 允许或禁止在定时器工作的时候向ARR的缓冲器写入新值 */
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;                   /* 当定时器计数值小于CCR1_Val时为低电平 */	
+	TIM_OC2Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
+	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);	
+	/*-------------------------------------------------------------------------------------------------------*/
+
+	/* PWM1 Mode configuration: Channel3 ---------------------------------------------------------------*/
+//	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
+//	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
+//	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
+//	TIM_OC3Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
+//	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);	
+	/*-------------------------------------------------------------------------------------------------------*/
+
+	TIM_ARRPreloadConfig(TIM2, ENABLE);                                         /* 允许或禁止在定时器工作的时候向ARR的缓冲器写入新值 */
 	
 //	TIM_ClearFlag(TIM2, TIM_FLAG_Update);										/* Clear TIM2 update pending flag */
 //	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);									/* Enable TIM2 Update interrupt */
 
 	TIM_Cmd(TIM2, ENABLE);
-	TIM_CtrlPWMOutputs(TIM2, DISABLE);
+	TIM_CtrlPWMOutputs(TIM2, ENABLE);
 }
 
 
