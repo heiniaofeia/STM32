@@ -7,7 +7,7 @@
  * @details: pwm source file
  */
 #include "bsp_pwm.h" 
-
+#include "global_variables.h"
 
 
 /*---------------------------------------------------------------------------
@@ -53,18 +53,23 @@ static void TIM2_Configuration(void)
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 	
+	uint16_t TIM2Period;
+	
 	
 	/* 设置TIM3CLK 为 72MHZ */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
-		
+	TIM2Period = PWM_FREQ_MAX;
+	/* Compute CCR1 value to generate a duty cycle at 50% for channel 1 and 1N */
+
+	
 	TIM_DeInit(TIM2);
-	TIM_TimeBaseStructure.TIM_Prescaler = 2879;                                 /* 时钟预分频数, 2880分频. */
+	TIM_TimeBaseStructure.TIM_Prescaler = 1439;                                 /* 时钟预分频数, 1440分频. */
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;                 /* 向上计数模式, 即左对齐. */
 	TIM_TimeBaseStructure.TIM_Period = TIM2Period;                              /* PWM周期. */
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;                     /* 采样分频, 不分频。 */
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
+	
 	/* PWM1 Mode configuration: Channel1 ---------------------------------------------------------------*/
 //	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
 //	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
@@ -78,11 +83,20 @@ static void TIM2_Configuration(void)
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
 	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;                    /* 当定时器计数值小于CCR1_Val时为高电平 */
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;                   /* 当定时器计数值小于CCR1_Val时为低电平 */	
 	TIM_OC2Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
 	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);	
-	/* ------------------------------------------------------------------------------------------------*/
-	
+	/*-------------------------------------------------------------------------------------------------------*/
+
+	/* PWM1 Mode configuration: Channel3 ---------------------------------------------------------------*/
+//	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
+//	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
+//	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
+//	TIM_OC3Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
+//	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);	
+	/*-------------------------------------------------------------------------------------------------------*/
 	
 	TIM_ARRPreloadConfig(TIM2, ENABLE);                                         /* 允许或禁止在定时器工作的时候向ARR的缓冲器写入新值 */
 	
@@ -105,6 +119,13 @@ void TIM2_PWM_Init(void)
 {
 	TIM2_GPIO_Config();
 	TIM2_Configuration();	
+	
+	Microwaves.CtlSwitch = OFF;
+	Microwaves.Freq = 0;
+	Microwaves.FreqMin = PWM_FREQ_MIN;
+	Microwaves.FreqMax = PWM_FREQ_MAX;
+	
+	Microwaves.FeedbackVoltage = 0;
 }
 
 /*********************************************END OF FILE**********************/

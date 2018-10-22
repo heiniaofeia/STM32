@@ -15,7 +15,9 @@
                                 Variable definition
 ----------------------------------------------------------------------------*/
 struct tagADC1  ADC1Dat;
-	
+struct tagMatrixkey  Matrixkey;
+struct tagMicrowaves  Microwaves;
+
 
 /*---------------------------------------------------------------------------
                                 Function definition

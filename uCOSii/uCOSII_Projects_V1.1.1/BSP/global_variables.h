@@ -22,8 +22,20 @@
 /*---------------------------------------------------------------------------
                                 Macro definition
 ----------------------------------------------------------------------------*/
+#define                      OFF                           0          
+#define                      ON                            1 
+	 
+#define                      FALSE                         0          
+#define                      TRUE                          1 	
+	 
 
+/*
+ * @details: PWM¡£
+ */
+#define                      PWM_FREQ_MIN                  0          
+#define                      PWM_FREQ_MAX                  1000 
 
+	 
 /*---------------------------------------------------------------------------
                                 Variable type
 ----------------------------------------------------------------------------*/
@@ -46,11 +58,41 @@ struct tagADC1
 };
 
 
+/*
+ * @details: °´¼ü¡£
+ */
+struct tagMatrixkey
+{
+	uint8_t                  Value;
+	uint8_t                  KeySingleDeal;	
+};
+
+
+
+/*
+ * @details: °´¼ü¡£
+ */
+struct tagMicrowaves
+{
+	uint8_t                  CtlSwitch;
+//	uint8_t                  MicrStage;
+	
+	uint8_t                  UpdataFreqFlg;
+	
+	uint16_t                 Freq;
+	uint16_t                 FreqMin;
+	uint16_t                 FreqMax;
+	
+	uint16_t                 FeedbackVoltage;
+};
+
 
 /*---------------------------------------------------------------------------
                                 Variable declaration
 ----------------------------------------------------------------------------*/
 extern  struct tagADC1  ADC1Dat;
+extern  struct tagMatrixkey  Matrixkey;
+extern  struct tagMicrowaves  Microwaves;
 
 
 /*---------------------------------------------------------------------------
