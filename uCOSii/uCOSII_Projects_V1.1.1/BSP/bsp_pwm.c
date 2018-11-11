@@ -83,8 +83,8 @@ static void TIM2_Configuration(void)
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                           /* 配置为PWM模式1*/
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
 	TIM_OCInitStructure.TIM_Pulse = 0;                                          /* 设置跳变值，当计数器计数到这个值时，电平发生跳变 */
-//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;                   /* 当定时器计数值小于CCR1_Val时为低电平 */	
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                   /* 当定时器计数值小于CCR1_Val时为高电平 */
+//	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;                    /* 当定时器计数值小于CCR1_Val时为低电平 */	
 	TIM_OC2Init(TIM2, &TIM_OCInitStructure);                                    /* 使能通道1 */
 	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);	
 	/*-------------------------------------------------------------------------------------------------------*/

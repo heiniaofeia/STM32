@@ -84,6 +84,7 @@ struct tagMicrowaves
 	uint16_t                 FreqMax;
 	
 	uint16_t                 FeedbackVoltage;
+	uint8_t                  DispBuf1[8];
 };
 
 

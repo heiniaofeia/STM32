@@ -322,16 +322,19 @@ void Task_LCD1602(void *p_arg)
 			
 			LCD_Write_String(5, 0, (uint8_t *)"     ");
 			LCD_Write_String(5, 1, (uint8_t *)"     ");
-			LCD_Write_String(11, 0, (uint8_t *)"      ");
+			LCD_Write_String(12, 0, (uint8_t *)"      ");
+			LCD_Write_String(12, 1, (uint8_t *)"      ");
+			
 			
 			LCD_Write_String(5, 0, &dis_stack_free[0]);
 			LCD_Write_String(5, 1, &dis_stack_used[0]);
 			
+			
 			LCD_Write_String(12, 0, &ADC1Dat.DispBuf1[0]);
-			LCD_Write_String(12, 1, &ADC1Dat.DispBuf2[0]);
 			
 			
-			LCD_Write_Char(12, 1, Matrixkey.Value);
+			LCD_Write_Char(10, 1, Matrixkey.Value);
+			LCD_Write_String(12, 1, &Microwaves.DispBuf1[0]);
 		}
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);
@@ -356,10 +359,10 @@ void Task_ADC1(void *p_arg)
 	
 	while(1)
 	{
-		conver_val_temp = Get_ADC1(ADC_Channel_0) * 3000 / 4096;
+		conver_val_temp = ((float)Get_ADC1(ADC_Channel_0)) * 3000 / 4096;
 		
 		//Debug: 查看ADC采样值。
-//		sprintf(&ADC1Dat.DispBuf1[0], "%d", conver_val_temp);
+		sprintf(&ADC1Dat.DispBuf1[0], "%d", conver_val_temp);
 		
 		if( conver_val_temp > 2000)                                             //变频驱动板反馈电压不得超过4VDC. 为安全起见，设定为2VDC。
 		{
@@ -400,13 +403,13 @@ void Task_PWM(void *p_arg)
 					}
 					else if( Microwaves.Freq < 100 )
 					{
-						TIM2->PSC = 2879;
+						TIM2->PSC = 1439;
 						TIM2->ARR = 50000 / Microwaves.Freq;
 						TIM2->CCR2 = 25000 / Microwaves.Freq;
 					}
 					else
 					{
-						TIM2->PSC = 1439;
+						TIM2->PSC = 719;
 						TIM2->ARR = 100000 / Microwaves.Freq;
 						TIM2->CCR2 = 50000 / Microwaves.Freq;
 					}
@@ -417,6 +420,8 @@ void Task_PWM(void *p_arg)
 		{
 			TIM2->CCR2 = 0;
 		}
+		
+		sprintf(&Microwaves.DispBuf1[0], "%d", Microwaves.Freq);
 		
 		OSTimeDlyHMSM(0, 0, 0, 1000);
 	}
