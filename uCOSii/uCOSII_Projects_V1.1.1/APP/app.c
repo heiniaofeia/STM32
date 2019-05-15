@@ -213,6 +213,8 @@ void Task_Matrixkey(void *p_arg)
 				case '*':
 					if( FALSE == Matrixkey.KeySingleDeal )
 					{
+						Microwaves.Freq = 305;
+						Microwaves.UpdataFreqFlg = TRUE;
 						Matrixkey.KeySingleDeal = TRUE;
 						Microwaves.CtlSwitch = ON;
 					}					
